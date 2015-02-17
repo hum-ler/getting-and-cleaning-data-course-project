@@ -22,7 +22,8 @@ The scripts will create 2 data objects in your R environment:
 - **tidy** -- the smaller data set with the means of mean or std variables by activity and subject.
 
 The raw data will be left in the ./raw directory.
-The tiny data is exported to the ./tidy/tidy.txt file.
+
+The tidy data will be exported to the ./tidy/tidy.txt file.
 
 The scripts are written and tested on Windows 7:
 
