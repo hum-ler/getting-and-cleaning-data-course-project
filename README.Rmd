@@ -1,4 +1,9 @@
-# Course Project -- Getting and Cleaning Data
+---
+title: "Course Project -- Getting and Cleaning Data"
+output:
+  html_document:
+    keep_md: yes
+---
 
 This repository contains the files for submission to the Course Project:
 
@@ -9,8 +14,7 @@ This repository contains the files for submission to the Course Project:
 
 To produce the tidy data output, go to an appropriate working directory, and then run:
 
-
-```r
+```{r eval=F}
 source("fetch_raw_data.R")
 FetchRawData()
 source("run_analysis.R")
@@ -26,15 +30,6 @@ The tiny data is exported to the ./tidy/tidy.txt file.
 
 The scripts are written and tested on Windows 7:
 
-
-```r
+```{r}
 R.Version()[c("platform", "version.string")]
-```
-
-```
-## $platform
-## [1] "x86_64-w64-mingw32"
-## 
-## $version.string
-## [1] "R version 3.1.2 (2014-10-31)"
 ```

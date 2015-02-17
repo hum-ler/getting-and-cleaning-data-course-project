@@ -1,0 +1,199 @@
+# CodeBook
+
+This document describes the variables in the tidy data set as well as the steps used to derive these variables from the given raw data. The Markdown (.md) of this file is generated using the `keep_md: yes` directive in RMarkdown.
+
+# Raw data
+
+The source data comes with an experiment where 30 subjects perform 6 activities while being monitored using the accelerometer and gyroscope embedded in a smartphone.
+
+The 30 subject are split randomly into 2 groups, and the corresponding data are also distributed in 2 separate sets of text files.
+
+The variables in the data files are mainly features, which are pre-processed and aggregated values of the original recorded numbers.
+
+For details of the variables, please refer to the original README.txt and features_info.txt in the source zip file. This file can be downloaded from: https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
+
+# Tidy data
+
+## Variables
+
+ Variable  Description
+---------- ------------
+subject    The ID of the subject. An int in the range 1:30.
+activity   The name of the activity. One of {*laying*, *sitting*, *standing*, *walking*, *walking-downstairs*, *walking-upstairs*}
+
+There are 66 more feature variables (e.g. **time.bodyacc.mean.x**, **freq.bodyaccmag.std**) whose name takes the form of either:
+
+- (time|freq).&lt;captured feature&gt;.(mean|std)
+- (time|freq).&lt;captured feature&gt;.(mean|std).(x|y|z)
+
+There are 3 or 4 parts to the feature variable name, with dots (*.*) separating the parts:
+
+1. The first part states whether the signal is in the time domain (*time*) or frequency domain (*freq*).
+
+2. The second part is the name of the captured feature.
+
+3. The third part states whether the variable contains the mean (*mean*) or standard deviation (*std*).
+
+4. The last part, which is only applicable to certain features, states the axis (*x*, *y*, or *z*) for the measurement.
+
+Each row in the table contains the mean of the feature variable grouped by each activity and each subject.
+
+## Steps
+
+The steps used to prepare the tidy data set in run_analysis.R is described here. The raw data has been downloaded and extracted beforehand using the code in fetch_raw_data.R.
+
+
+```r
+# run_analysis.R
+
+# Input and output files locations.
+activity.labels.file <- "raw/unzipped/UCI HAR Dataset/activity_labels.txt"
+features.file        <- "raw/unzipped/UCI HAR Dataset/features.txt"
+train.subject.file   <- "raw/unzipped/UCI HAR Dataset/train/subject_train.txt"
+train.x.file         <- "raw/unzipped/UCI HAR Dataset/train/X_train.txt"
+train.y.file         <- "raw/unzipped/UCI HAR Dataset/train/y_train.txt"
+test.subject.file    <- "raw/unzipped/UCI HAR Dataset/test/subject_test.txt"
+test.x.file          <- "raw/unzipped/UCI HAR Dataset/test/X_test.txt"
+test.y.file          <- "raw/unzipped/UCI HAR Dataset/test/y_test.txt"
+tidy.data.dir        <- "tidy"
+tidy.data.file       <- file.path(tidy.data.dir, "tidy.txt")
+
+# You can run FetchRawData() to get the input files into position.
+# source("fetch_raw_data.R")
+# FetchRawData()
+```
+
+### 1. Read the activity names
+
+
+```r
+# Read the activity labels.
+# You can visually inspect that the IDs (column 1) runs to 1L to 6L, so we can
+# directly use the row number as index to get the label (column 2).
+activity.labels <- read.table(activity.labels.file, as.is = T)
+# Make the activity names somewhat friendlier to the console.
+activity.labels[, 2] <- gsub("_", "-", activity.labels[, 2])  # replace _ with -
+activity.labels[, 2] <- tolower(activity.labels[, 2])         # lowercase
+```
+
+The names are converted to lowercase. Underscores are replaced by dashes. **This may NOT be a good idea as the person receiving your data could be expecting the same name as given in the original data.**
+
+### 2. Read the feature names
+
+
+```r
+# Read the feature names.
+# You can verify that the IDs (column 1) is a running sequence from 1L to 561L,
+# so we can directly use column 2 as the header for reading x data files. To
+# check the sequence, one method might be to try combining dim(), min(), max(),
+# length(table()), all(table() == 1). You can also use column 1 as order if you
+# want to play safe.
+features <- read.table(features.file, as.is = T)
+# Make the feature names somewhat friendlier to the console.
+features[, 2] <- gsub("[()]", "", features[, 2])     # remove ()
+features[, 2] <- gsub("^t", "time.", features[, 2])  # spell out time
+features[, 2] <- gsub("^f", "freq.", features[, 2])  # spell out freq
+features[, 2] <- gsub("[-_,]", ".", features[, 2])   # replace symbols with .
+features[, 2] <- tolower(features[, 2])              # lowercase
+```
+
+The feature names will be used as column names when reading in the data later on. The names are converted to lowercase. Brackets are removed, and underscores, dashes and commas are replaced by dots. **This may NOT be a good idea as the person receiving your data could be expecting the same name as given in the original data.**
+
+It is important to retain the order of the names.
+
+### 3. Read the training data
+
+
+```r
+# Read the data for the training group.
+train.subject <- read.table(train.subject.file)
+train.y <- read.table(train.y.file)
+train.x <- read.table(train.x.file, col.names = features[, 2])
+train <- cbind(subject = train.subject[, 1],
+               group = "train",
+               activity = sapply(train.y[, 1],
+                                 function(x) { activity.labels[x, 2] }),
+               train.x)
+```
+
+The features names from the previous step are used directly as column names for reading the X file.
+
+Two new columns are introduced:
+
+- **group** is always *train* for training data.
+- **activity** replaces the activity ID in the Y file with the corresponding activity name.
+
+### 4. Read the test data
+
+
+```r
+# Read the data for the test group.
+test.subject <- read.table(test.subject.file)
+test.y <- read.table(test.y.file)
+test.x <- read.table(test.x.file, col.names = features[, 2])
+test <- cbind(subject = test.subject[, 1],
+              group = "test",
+              activity = sapply(test.y[, 1],
+                                function(x) { activity.labels[x, 2] }),
+              test.x)
+```
+
+Similar to the previous step, except **group** is always *test*.
+
+### 5. Combine the training and test data
+
+
+```r
+# Combine the training and test obversations.
+combined <- rbind(train, test)
+
+# Convert categorical variables to factors.
+combined$group    <- factor(combined$group)
+combined$activity <- factor(combined$activity)
+```
+
+We now have the tidy wide table.
+
+### 6. Create the second tidy data set
+
+
+```r
+# Create a new, independent tidy data set.
+# Pick only the mean/std columns and calculate their means by subject/activity.
+library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
+tidy <- combined %>%
+  select(subject, activity, matches("\\.(std|mean)(\\.|$)")) %>%
+  group_by(subject, activity) %>%
+  summarise_each(funs(mean))
+```
+
+The new data set includes, besides the columns **subject** and **activity**, only columns whose names contains either .mean. or .std. or ends with .mean or .std
+
+The `mean` function is then used to summarize the column by each activity and each subject.
+
+### 7. Write the second data set to file
+
+
+```r
+# Write the tidy data set to disk.
+if (!file.exists(tidy.data.dir)) {
+  dir.create(tidy.data.dir)
+}
+write.table(tidy, tidy.data.file, row.names = F)
+```
