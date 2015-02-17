@@ -21,26 +21,30 @@ For details of the variables, please refer to the original README.txt and featur
 subject    The ID of the subject. An int in the range 1:30.
 activity   The name of the activity. One of {*laying*, *sitting*, *standing*, *walking*, *walking-downstairs*, *walking-upstairs*}
 
-There are 66 more feature variables (e.g. **time.bodyacc.mean.x**, **freq.bodyaccmag.std**) whose name takes the form of either:
+There are 66 more summary variables (e.g. **time.bodyacc.mean.x**, **freq.bodyaccmag.std**) whose name takes the form of either:
 
 - (time|freq).&lt;captured feature&gt;.(mean|std)
 - (time|freq).&lt;captured feature&gt;.(mean|std).(x|y|z)
 
-There are 3 or 4 parts to the feature variable name, with dots (*.*) separating the parts:
+There are 3 or 4 parts to the name, with dots (*.*) separating the parts:
 
 1. The first part states whether the signal is in the time domain (*time*) or frequency domain (*freq*).
 
 2. The second part is the name of the captured feature.
 
-3. The third part states whether the variable contains the mean (*mean*) or standard deviation (*std*).
+3. The third part states whether the feature contains the mean (*mean*) or standard deviation (*std*).
 
 4. The last part, which is only applicable to certain features, states the axis (*x*, *y*, or *z*) for the measurement.
 
-Each row in the table contains the mean of the feature variable grouped by each activity and each subject.
+Each row in the table contains the mean of the feature grouped by each activity and each subject.
+
+For variables related to the accelerometer (the feature name contains *acc*) the unit is standard gravity unit, g.
+
+For variables related to the gyroscope (the feature name contains *gyro*) the unit is radians/second.
 
 ## Steps
 
-The steps used to prepare the tidy data set in run_analysis.R is described here. The raw data has been downloaded and extracted beforehand using the code in fetch_raw_data.R.
+The steps used to prepare the tidy data set in run_analysis.R are described here. The raw data has been downloaded and extracted beforehand using the code in fetch_raw_data.R.
 
 
 ```r

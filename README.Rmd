@@ -8,7 +8,7 @@ output:
 This repository contains the files for submission to the Course Project:
 
 - **README.Rmd**, **README.md** -- this file itself. The Markdown (.md) is generated using the `keep_md: yes` directive in RMarkdown.
-- **CodeBook.Rmd**, **CodeBook.md** -- the code book for the variables in the tidy data set. The Markdown (.md) is generated using the `keep_md: yes` directive in RMarkdown.
+- **CodeBook.Rmd**, **CodeBook.md** -- the code book for the variables in the tidy data set. Also describes the steps used to derive the tidy data. The Markdown (.md) is generated using the `keep_md: yes` directive in RMarkdown.
 - **fetch_raw_data.R** -- R script with functions that download and extract the raw data.
 - **run_analysis.R** -- R script that combines, cleans and produce the tidy data set.
 
