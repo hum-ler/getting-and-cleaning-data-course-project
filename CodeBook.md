@@ -88,10 +88,8 @@ The names are converted to lowercase. Underscores are replaced by dashes. **This
 ```r
 # Read the feature names.
 # You can verify that the IDs (column 1) is a running sequence from 1L to 561L,
-# so we can directly use column 2 as the header for reading x data files. To
-# check the sequence, one method might be to try combining dim(), min(), max(),
-# length(table()), all(table() == 1). You can also use column 1 as order if you
-# want to play safe.
+# so we can directly use column 2 as the header for reading x data files. One
+# possible method to check the sequence might be: all(1:561 == features[, 1])
 features <- read.table(features.file, as.is = T)
 # Make the feature names somewhat friendlier to the console.
 features[, 2] <- gsub("[()]", "", features[, 2])     # remove ()
